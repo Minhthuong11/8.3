@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glitter Trail Effect</title>
+    <style>
+        body {
+            background-color: black;
+            margin: 0;
+            overflow: hidden;
+        }
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <svg id="stage"></svg>
+
+    <script>
+        function randomColor() {
+        var colors = ["#ff0000", "#ff7300", "#fffb00", "#48ff00", "#00ff92", "#00bfff", "#002bff", "#7a00ff", "#ff00f7"];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function GlitterTrail(stage) {
+            this.points = [];
+            this.stage = stage;
+
+            var self = this;
+            window.requestAnimationFrame(function() {
+                self.update();
+            });
+        }
+
+        GlitterTrail.prototype.addPoint = function(x, y) {
+            var size = Math.random() * 6 + 2; // Kích thước hạt (2px - 8px)
+            var opacity = 1;
+            var color = randomColor();
+
+            var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy", y);
+            circle.setAttribute("r", size);
+            circle.setAttribute("fill", color);
+            circle.setAttribute("opacity", opacity);
+
+            this.stage.appendChild(circle);
+            this.points.push({ element: circle, opacity: opacity });
+        };
+
+        GlitterTrail.prototype.update = function() {
+            for (var i = 0; i < this.points.length; i++) {
+                this.points[i].opacity -= 0.02; // Giảm opacity để tạo hiệu ứng mờ dần
+                this.points[i].element.setAttribute("opacity", this.points[i].opacity);
+
+                if (this.points[i].opacity <= 0) {
+                    this.stage.removeChild(this.points[i].element);
+                    this.points.splice(i, 1);
+                    i--;
+                }
+            }
+
+            var self = this;
+            window.requestAnimationFrame(function() {
+                self.update();
+            });
+        };
+
+        var stage = document.getElementById("stage");
+        var glitterTrail = new GlitterTrail(stage);
+
+        document.addEventListener("mousemove", function(e) {
+            glitterTrail.addPoint(e.clientX, e.clientY);
+        });
+    </script>
+</body>
+</html>
